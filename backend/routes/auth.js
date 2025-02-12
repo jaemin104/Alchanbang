@@ -1,4 +1,5 @@
 const express = require("express");
+const authMiddleware = require("../middleware/auth"); // authMiddleware 불러오기
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("../db");
@@ -57,6 +58,23 @@ router.post("/login", async (req, res) => {
     } catch (error) {
         console.error("로그인 오류:", error); // 로그 추가
         res.status(500).json({ message: "Server error" });
+    }
+});
+
+// 사용자 정보 조회
+router.get("/userinfo", authMiddleware, async (req, res) => {
+    try {
+      const userId = req.user.id; // 로그인한 사용자 ID
+  
+      const [user] = await db.query("SELECT nickname FROM user WHERE id = ?", [userId]);
+      if (user.length === 0) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      res.json({ nickname: user[0].nickname });
+    } catch (error) {
+      console.error("사용자 정보 조회 오류:", error);
+      res.status(500).json({ message: "Server error" });
     }
 });
 

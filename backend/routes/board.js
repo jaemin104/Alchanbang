@@ -35,6 +35,8 @@ router.get("/", async (req, res) => {
             ORDER BY p.created_at DESC
         `);
 
+        console.log("📢 서버에서 반환하는 posts:", posts);  // ✅ 백엔드에서 응답 데이터 확인
+
         res.json(posts);
     } catch (error) {
         console.error("게시글 조회 오류:", error);

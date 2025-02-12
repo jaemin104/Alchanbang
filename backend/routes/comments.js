@@ -34,4 +34,31 @@ router.post("/:postId", authMiddleware, async (req, res) => {
     }
 });
 
+// 댓글 조회
+router.get("/:postId", async (req, res) => {
+    const { postId } = req.params;
+    console.log(`댓글 조회 요청: 게시글 ID - ${postId}`);  // 디버깅용 로그
+  
+    try {
+        // 댓글 조회 쿼리
+        const [comments] = await db.query(`
+            SELECT c.id, c.content, u.nickname
+            FROM comments c
+            JOIN user u ON c.user_id = u.id
+            WHERE c.post_id = ?
+            ORDER BY c.created_at ASC
+        `, [postId]);
+  
+        // 댓글이 없으면 빈 배열로 응답
+        if (comments.length === 0) {
+            return res.status(204).json([]);
+        }
+
+        res.json(comments);
+    } catch (error) {
+        console.error("댓글 조회 오류:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
 module.exports = router;
