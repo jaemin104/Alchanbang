@@ -99,6 +99,4 @@ router.delete("/:postId", authMiddleware, async (req, res) => {
     }
 });
 
-
-
 module.exports = router;

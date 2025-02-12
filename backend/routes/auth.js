@@ -64,17 +64,42 @@ router.post("/login", async (req, res) => {
 // 사용자 정보 조회
 router.get("/userinfo", authMiddleware, async (req, res) => {
     try {
-      const userId = req.user.id; // 로그인한 사용자 ID
-  
-      const [user] = await db.query("SELECT nickname FROM user WHERE id = ?", [userId]);
-      if (user.length === 0) {
-        return res.status(404).json({ message: "User not found" });
-      }
-  
-      res.json({ nickname: user[0].nickname });
+        const userId = req.user.id; // 로그인한 사용자 ID
+
+        const [user] = await db.query("SELECT nickname FROM user WHERE id = ?", [userId]);
+        if (user.length === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json({ nickname: user[0].nickname });
     } catch (error) {
-      console.error("사용자 정보 조회 오류:", error);
-      res.status(500).json({ message: "Server error" });
+        console.error("사용자 정보 조회 오류:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// 닉네임 수정
+router.put("/update-nickname", authMiddleware, async (req, res) => {
+    const { nickname } = req.body; // 클라이언트에서 보낸 새로운 닉네임
+    const userId = req.user.id; // JWT 토큰에서 추출한 사용자 ID
+
+    if (!nickname) {
+        return res.status(400).json({ message: "닉네임을 입력해주세요." });
+    }
+
+    try {
+        // 닉네임 업데이트 쿼리
+        const query = "UPDATE user SET nickname = ? WHERE id = ?";
+        const [result] = await db.execute(query, [nickname, userId]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+        }
+
+        res.status(200).json({ message: "닉네임이 성공적으로 변경되었습니다." });
+    } catch (error) {
+        console.error("닉네임 수정 오류:", error);
+        res.status(500).json({ message: "닉네임 수정에 실패했습니다." });
     }
 });
 
