@@ -44,7 +44,7 @@ router.get("/:postId", async (req, res) => {
         const [comments] = await db.query(`
             SELECT c.id, c.content, u.nickname
             FROM comments c
-            JOIN user u ON c.user_id = u.id
+            JOIN users u ON c.user_id = u.id
             WHERE c.post_id = ?
             ORDER BY c.created_at ASC
         `, [postId]);

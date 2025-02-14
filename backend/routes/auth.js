@@ -13,7 +13,7 @@ router.post("/register", async (req, res) => {
 
     try {
         // 이메일 중복 확인
-        const [existingUser] = await db.execute("SELECT * FROM user WHERE email = ?", [email]);
+        const [existingUser] = await db.execute("SELECT * FROM users WHERE email = ?", [email]);
         if (existingUser.length > 0) {
             return res.status(400).json({ message: "Email already exists" });
         }
@@ -22,7 +22,7 @@ router.post("/register", async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // 유저 저장
-        await db.execute("INSERT INTO user (nickname, email, password) VALUES (?, ?, ?)", 
+        await db.execute("INSERT INTO users (nickname, email, password) VALUES (?, ?, ?)", 
             [nickname, email, hashedPassword]);
 
         res.status(201).json({ message: "User registered successfully" });
@@ -37,7 +37,7 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const [users] = await db.execute("SELECT * FROM user WHERE email = ?", [email]);
+        const [users] = await db.execute("SELECT * FROM users WHERE email = ?", [email]);
         if (users.length === 0) {
             return res.status(400).json({ message: "Invalid email or password" });
         }
@@ -66,7 +66,7 @@ router.get("/userinfo", authMiddleware, async (req, res) => {
     try {
         const userId = req.user.id; // 로그인한 사용자 ID
 
-        const [user] = await db.query("SELECT nickname FROM user WHERE id = ?", [userId]);
+        const [user] = await db.query("SELECT nickname FROM users WHERE id = ?", [userId]);
         if (user.length === 0) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -89,7 +89,7 @@ router.put("/update-nickname", authMiddleware, async (req, res) => {
 
     try {
         // 닉네임 업데이트 쿼리
-        const query = "UPDATE user SET nickname = ? WHERE id = ?";
+        const query = "UPDATE users SET nickname = ? WHERE id = ?";
         const [result] = await db.execute(query, [nickname, userId]);
 
         if (result.affectedRows === 0) {
