@@ -58,6 +58,16 @@ router.get("/", async (req, res) => {
             LIMIT 3
         `);
 
+        const [topCommenters] = await db.query(`
+            SELECT u.nickname, COUNT(c.id) AS comment_count
+            FROM comments c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.created_at >= NOW() - INTERVAL 7 DAY
+            GROUP BY c.user_id
+            ORDER BY comment_count DESC
+            LIMIT 3
+        `);
+
         const [[{ totalCount }]] = await db.query(`
             SELECT COUNT(*) AS totalCount FROM posts p ${searchCondition}
         `, searchParams);
@@ -65,6 +75,7 @@ router.get("/", async (req, res) => {
         res.json({
             posts,
             popularPosts,
+            topCommenters,
             totalCount,
             totalPages: Math.ceil(totalCount / limit),
             currentPage: page
