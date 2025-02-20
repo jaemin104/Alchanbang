@@ -66,17 +66,21 @@ router.get("/userinfo", authMiddleware, async (req, res) => {
     try {
         const userId = req.user.id; // 로그인한 사용자 ID
 
-        const [user] = await db.query("SELECT nickname FROM users WHERE id = ?", [userId]);
+        // 닉네임과 userId를 함께 조회하도록 수정
+        const [user] = await db.query("SELECT id, nickname FROM users WHERE id = ?", [userId]);
+
         if (user.length === 0) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        res.json({ nickname: user[0].nickname });
+        // userId도 함께 반환
+        res.json({ userId: user[0].id, nickname: user[0].nickname });
     } catch (error) {
         console.error("사용자 정보 조회 오류:", error);
         res.status(500).json({ message: "Server error" });
     }
 });
+
 
 // 닉네임 수정
 router.put("/update-nickname", authMiddleware, async (req, res) => {

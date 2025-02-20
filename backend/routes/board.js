@@ -3,6 +3,28 @@ const authMiddleware = require("../middleware/auth");
 const db = require("../db");
 const router = express.Router();
 
+// 게시글 작성 (로그인된 사용자만 가능)
+router.post("/", authMiddleware, async (req, res) => {
+    try {
+        const { title, content } = req.body;
+        const userId = req.user.id; // 로그인한 사용자 ID
+
+        if (!title || !content) {
+            return res.status(400).json({ message: "제목과 내용을 입력해주세요." });
+        }
+
+        // 게시글 저장
+        const sql = "INSERT INTO posts (title, content, user_id, created_at) VALUES (?, ?, ?, NOW())";
+        const [result] = await db.query(sql, [title, content, userId]);
+
+        res.status(201).json({ message: "게시글 작성 성공", postId: result.insertId });
+    } catch (error) {
+        console.error("게시글 작성 오류:", error);
+        res.status(500).json({ message: "게시글 작성 실패" });
+    }
+});
+
+
 // 게시글 좋아요 추가 및 취소
 router.post("/:postId/like", authMiddleware, async (req, res) => {
     const { postId } = req.params;
@@ -97,13 +119,14 @@ router.get("/:postId", authMiddleware, async (req, res) => {
         await db.query("UPDATE posts SET views = views + 1 WHERE id = ?", [postId]);
 
         const [posts] = await db.query(`
-            SELECT p.id, p.title, p.content, p.created_at, p.views,
-                   u.nickname AS author, 
-                   (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS likes
+            SELECT p.id, p.title, p.content, p.created_at, p.views, p.user_id,
+                u.nickname AS author, 
+                (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS likes
             FROM posts p
             JOIN users u ON p.user_id = u.id  
             WHERE p.id = ?
         `, [postId]);
+
 
         if (posts.length === 0) {
             return res.status(404).json({ message: "Post not found" });
@@ -118,6 +141,39 @@ router.get("/:postId", authMiddleware, async (req, res) => {
         res.json({ ...posts[0], liked });
     } catch (error) {
         console.error("게시글 상세 조회 오류:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+//  게시글 삭제 (본인만 가능)
+router.delete("/:postId", authMiddleware, async (req, res) => {
+    const { postId } = req.params;
+    const userId = req.user.id; // 로그인한 사용자 ID
+
+    try {
+        //  해당 게시글이 존재하는지 확인 + 작성자 ID 조회
+        const [posts] = await db.query("SELECT user_id FROM posts WHERE id = ?", [postId]);
+
+        if (posts.length === 0) {
+            return res.status(404).json({ message: "Post not found" });
+        }
+
+        //  작성자 ID와 로그인한 사용자의 ID가 일치하는지 확인
+        if (posts[0].user_id !== userId) {
+            return res.status(403).json({ message: "You can only delete your own posts" });
+        }
+
+        //  댓글 먼저 삭제 (외래키 관계 때문에)
+        await db.query("DELETE FROM comments WHERE post_id = ?", [postId]);
+
+        // 게시글 삭제
+        await db.query("DELETE FROM posts WHERE id = ?", [postId]);
+
+        console.log(`게시글 ${postId} 삭제 완료`);
+
+        res.json({ message: "Post deleted successfully" });
+    } catch (error) {
+        console.error("게시글 삭제 오류:", error);
         res.status(500).json({ message: "Server error" });
     }
 });
