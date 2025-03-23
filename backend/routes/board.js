@@ -64,9 +64,11 @@ router.get("/", async (req, res) => {
 
         const [posts] = await db.query(`
             SELECT p.id, p.title, p.content, p.created_at, p.views,
+                   u.nickname,
                    (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS likes,
                    (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count
             FROM posts p
+            JOIN users u ON p.user_id = u.id
             ${searchCondition}
             ORDER BY p.created_at DESC
             LIMIT ? OFFSET ?
@@ -74,8 +76,10 @@ router.get("/", async (req, res) => {
 
         const [popularPosts] = await db.query(`
             SELECT p.id, p.title, p.content, p.created_at, p.views,
+                   u.nickname,
                    (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id AND l.created_at >= NOW() - INTERVAL 3 DAY) AS recent_likes
             FROM posts p
+            JOIN users u ON p.user_id = u.id
             ORDER BY recent_likes DESC
             LIMIT 3
         `);

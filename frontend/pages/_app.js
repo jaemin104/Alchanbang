@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import Navbar from "@/components/Navbar";
 import "@/styles/globals.css";
 
 export default function App({ Component, pageProps }) {
@@ -14,5 +15,12 @@ export default function App({ Component, pageProps }) {
     }
   }, [router.pathname]);
 
-  return <Component {...pageProps} />;
+  const isAuthPage = router.pathname === "/login" || router.pathname === "/register";
+
+  return (
+    <>
+      {!isAuthPage && <Navbar />}
+      <Component {...pageProps} />
+    </>
+  );
 }

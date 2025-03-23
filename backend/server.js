@@ -7,7 +7,11 @@ const profileRoutes = require("./routes/profile");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: "*", // 모든 요청 허용 (보안이 필요하면 특정 도메인만 허용)
+  credentials: true
+}));
+
 app.use(express.json());
 
 app.use((req, res, next) => {

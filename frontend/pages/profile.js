@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import Navbar from "../components/Navbar"; // Navbar 컴포넌트 추가
 
 export default function Profile() {
@@ -126,92 +127,125 @@ export default function Profile() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <h1 className="text-2xl font-semibold mb-4">내 프로필</h1>
+    <div className="min-h-screen bg-[#a1c638]/10 pt-16">
+      <div className="max-w-4xl mx-auto p-6">
+        {/* 프로필 카드 */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <div className="text-center mb-6">
+            {isEditing ? (
+              <div className="flex items-center justify-center gap-4">
+                <input
+                  type="text"
+                  value={newNickname}
+                  onChange={(e) => setNewNickname(e.target.value)}
+                  className="p-2 border border-[#a1c638]/30 rounded-lg focus:ring-2 focus:ring-[#a1c638] focus:border-[#a1c638]"
+                  placeholder="새 닉네임"
+                />
+                <button
+                  onClick={handleSaveNickname}
+                  className="bg-[#a1c638] hover:bg-[#91b232] text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  저장
+                </button>
+                <button
+                  onClick={() => {
+                    setIsEditing(false);
+                    setNewNickname(nickname);
+                  }}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  취소
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-4">
+                <h1 className="text-3xl font-bold text-gray-900">{nickname}님의 프로필</h1>
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="text-[#a1c638] hover:text-[#91b232] transition-colors"
+                >
+                  ✏️ 수정
+                </button>
+              </div>
+            )}
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="bg-[#a1c638]/10 p-4 rounded-lg">
+              <p className="text-2xl font-bold text-[#a1c638]">{myPosts.length || 0}</p>
+              <p className="text-gray-600">작성한 게시글</p>
+            </div>
+            <div className="bg-[#a1c638]/10 p-4 rounded-lg">
+              <p className="text-2xl font-bold text-[#a1c638]">{myComments.length || 0}</p>
+              <p className="text-gray-600">작성한 댓글</p>
+            </div>
+            <div className="bg-[#a1c638]/10 p-4 rounded-lg">
+              <p className="text-2xl font-bold text-[#a1c638]">{likedPosts.length || 0}</p>
+              <p className="text-gray-600">좋아요한 글</p>
+            </div>
+          </div>
+        </div>
 
-      {/* 닉네임 변경 */}
-      <div className="mb-4">
-        <strong>닉네임:</strong>
-        {isEditing ? (
-          <div>
-            <input
-              type="text"
-              value={newNickname}
-              onChange={(e) => setNewNickname(e.target.value)}
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md"
-              placeholder="새 닉네임을 입력하세요"
-            />
-            <button
-              onClick={handleSaveNickname}
-              className="mt-2 bg-blue-500 text-white py-2 px-4 rounded-md"
-            >
-              저장
-            </button>
-          </div>
-        ) : (
-          <div className="mt-2">
-            <span>{nickname}</span>
-            <button
-              onClick={() => setIsEditing(true)}
-              className="ml-2 text-blue-500 hover:underline"
-            >
-              수정
-            </button>
-          </div>
-        )}
+        {/* 내가 쓴 게시글 */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">내가 쓴 게시글</h2>
+          {myPosts.length === 0 ? (
+            <p className="text-gray-500 text-center py-4">아직 작성한 게시글이 없습니다.</p>
+          ) : (
+            <div className="space-y-4">
+              {myPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="border border-[#a1c638]/20 rounded-lg p-4 hover:bg-[#a1c638]/10 transition-colors cursor-pointer"
+                  onClick={() => router.push(`/post/${post.id}`)}
+                >
+                  <h3 className="text-lg font-semibold text-gray-900">{post.title}</h3>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 좋아요한 게시글 */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">좋아요한 게시글</h2>
+          {likedPosts.length === 0 ? (
+            <p className="text-gray-500 text-center py-4">아직 좋아요한 게시글이 없습니다.</p>
+          ) : (
+            <div className="space-y-4">
+              {likedPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="border border-[#a1c638]/20 rounded-lg p-4 hover:bg-[#a1c638]/10 transition-colors cursor-pointer"
+                  onClick={() => router.push(`/post/${post.id}`)}
+                >
+                  <h3 className="text-lg font-semibold text-gray-900">{post.title}</h3>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 내가 쓴 댓글 */}
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">내가 쓴 댓글</h2>
+          {myComments.length === 0 ? (
+            <p className="text-gray-500 text-center py-4">아직 작성한 댓글이 없습니다.</p>
+          ) : (
+            <div className="space-y-4">
+              {myComments.map((comment) => (
+                <div
+                  key={comment.id}
+                  className="border border-[#a1c638]/20 rounded-lg p-4 hover:bg-[#a1c638]/10 transition-colors cursor-pointer"
+                  onClick={() => router.push(`/post/${comment.post_id}`)}
+                >
+                  <p className="text-gray-800">{comment.content}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-
-      {/* 내가 쓴 게시글 */}
-      <h2 className="text-xl font-semibold mt-6">내가 쓴 게시글</h2>
-      {!Array.isArray(myPosts) || myPosts.length === 0 ? (
-        <p>게시글이 없습니다.</p>
-      ) : (
-        <ul className="list-disc ml-5">
-          {myPosts.map((post) => (
-            <li key={post.id}>
-              <a href={`/post/${post.id}`} className="text-blue-500 hover:underline">
-                {post.title}
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
-
-
-      {/* 내가 쓴 댓글 */}
-      <h2 className="text-xl font-semibold mt-6">내가 쓴 댓글</h2>
-      {!Array.isArray(myComments) || myComments.length === 0 ? (
-        <p>댓글이 없습니다.</p>
-      ) : (
-        <ul className="list-disc ml-5">
-          {myComments.map((comment) => (
-            <li key={comment.id}>
-              <a href={`/post/${comment.post_id}`} className="text-blue-500 hover:underline">
-                {comment.content}
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
-
-
-      {/* 내가 좋아요한 게시글 */}
-      <h2 className="text-xl font-semibold mt-6">좋아요한 게시글</h2>
-      {!Array.isArray(likedPosts) || likedPosts.length === 0 ? (
-        <p>좋아요한 게시글이 없습니다.</p>
-      ) : (
-        <ul className="list-disc ml-5">
-          {likedPosts.map((post) => (
-            <li key={post.id}>
-              <a href={`/post/${post.id}`} className="text-blue-500 hover:underline">
-                {post.title}
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      { }
       <Navbar />
     </div>
   );

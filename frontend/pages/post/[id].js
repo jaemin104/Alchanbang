@@ -146,29 +146,48 @@ export default function PostDetail() {
   // ✅ 댓글을 렌더링하는 함수
 const renderComments = (comments) => {
   return comments.map((comment) => (
-    <li key={comment.id} style={{ marginLeft: comment.parent_id ? "20px" : "0" }}>
-      <p>
-        <strong>{comment.author ? comment.author : "익명"}:</strong>{" "}
-        {comment.content === "삭제된 댓글입니다." ? (
-          <span style={{ color: "gray" }}>삭제된 댓글입니다.</span>
-        ) : (
-          comment.content
-        )}
-      </p>
-
-      {/* ✅ 내가 쓴 댓글(원댓글 & 대댓글)만 삭제 버튼 표시 */}
-      {userId && comment.user_id === userId && comment.content !== "삭제된 댓글입니다." && (
-        <button onClick={() => handleDeleteComment(comment.id)}>삭제</button>
-      )}
-
-      {/* ✅ 원댓글이 삭제되지 않은 경우에만 대댓글 작성 가능 */}
-      {comment.parent_id === null && comment.content !== "삭제된 댓글입니다." && (
-        <button onClick={() => setParentId(comment.id)}>대댓글 작성</button>
-      )}
-
-      {/* ✅ 대댓글 재귀 렌더링 */}
+    <li
+      key={comment.id}
+      className={`p-4 bg-gray-50 rounded-lg ${
+        comment.parent_id ? "ml-8 border-l-4 border-gray-200" : ""
+      }`}
+    >
+      <div className="flex justify-between items-start mb-2">
+        <div>
+          <span className="font-semibold text-gray-900">
+            {comment.author ? comment.author : "익명"}
+          </span>
+          <p className={`mt-1 ${
+            comment.content === "삭제된 댓글입니다."
+              ? "text-gray-400 italic"
+              : "text-gray-800"
+          }`}>
+            {comment.content}
+          </p>
+        </div>
+        <div className="flex space-x-2">
+          {userId && comment.user_id === userId && comment.content !== "삭제된 댓글입니다." && (
+            <button
+              onClick={() => handleDeleteComment(comment.id)}
+              className="text-red-500 hover:text-red-600 text-sm"
+            >
+              삭제
+            </button>
+          )}
+          {comment.parent_id === null && comment.content !== "삭제된 댓글입니다." && (
+            <button
+              onClick={() => setParentId(comment.id)}
+              className="text-blue-500 hover:text-blue-600 text-sm"
+            >
+              답글
+            </button>
+          )}
+        </div>
+      </div>
       {comment.replies && comment.replies.length > 0 && (
-        <ul>{renderComments(comment.replies)}</ul>
+        <ul className="mt-4 space-y-4">
+          {renderComments(comment.replies)}
+        </ul>
       )}
     </li>
   ));
@@ -227,60 +246,107 @@ const renderComments = (comments) => {
 
 
   return (
-    <div>
-      {post && (
-        <>
-          <h1>{post.title}</h1>
+    <div className="min-h-screen bg-[#a1c638]/10 pt-16">
+      <div className="max-w-4xl mx-auto p-6">
+        {post && (
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            {/* 게시글 헤더 */}
+            <div className="border-b border-[#a1c638]/20 pb-4 mb-4">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{post.title}</h1>
+              <div className="flex items-center justify-between text-sm text-gray-500">
+                <div className="flex items-center space-x-4">
+                  <span>작성자: {post.author}</span>
+                  <span>•</span>
+                  <span>{new Date(post.created_at).toLocaleString()}</span>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <span>👁️ {post.views}</span>
+                  <span>❤️ {post.likes}</span>
+                </div>
+              </div>
+            </div>
 
-          {console.log("로그인한 사용자 ID:", userId)}
-          {console.log("게시글 작성자 ID:", post?.user_id)}
-          {console.log("삭제 버튼 표시 조건:", userId && post?.user_id && Number(userId) === Number(post?.user_id))}
+            {/* 게시글 본문 */}
+            <div className="prose max-w-none mb-6">
+              <p className="text-gray-800 whitespace-pre-wrap">{post.content}</p>
+            </div>
 
+            {/* 작성자 전용 버튼 & 좋아요 버튼 */}
+            <div className="flex justify-between items-center border-t border-[#a1c638]/20 pt-4">
+              <div>
+                {userId && post.user_id && Number(userId) === Number(post.user_id) && (
+                  <button
+                    onClick={handleDelete}
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors"
+                  >
+                    삭제하기
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={handleLike}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
+                  liked
+                    ? "bg-[#a1c638]/10 text-[#a1c638] hover:bg-[#a1c638]/20"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                <span>{liked ? "❤️" : "🤍"}</span>
+                <span>{liked ? "좋아요 취소" : "좋아요"}</span>
+              </button>
+            </div>
+          </div>
+        )}
 
-          {/* 로그인한 사용자와 작성자가 동일하면 삭제 버튼 표시 */}
-          {userId && post.user_id && Number(userId) === Number(post.user_id) && (
-            <button
-              onClick={handleDelete}
-              className="bg-red-500 text-white px-4 py-2 rounded-md"
-            >
-              삭제하기
-            </button>
+        {/* 댓글 섹션 */}
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">댓글</h2>
+          
+          {/* 댓글 목록 */}
+          {comments.length === 0 ? (
+            <p className="text-gray-500 text-center py-4 mb-8">아직 댓글이 없습니다. 첫 댓글을 작성해보세요!</p>
+          ) : (
+            <ul className="space-y-4 mb-8">
+              {renderComments(comments)}
+            </ul>
           )}
 
-          <p>조회수: {post.views}</p>
-          <p>좋아요: {post.likes}</p>
-          <button onClick={handleLike}>
-            {liked ? "좋아요 취소" : "좋아요"}
-          </button>
-
-          <p>{post.content}</p>
-          <p>
-            <strong>작성자:</strong> {post.author}
-          </p>
-          <p>
-            <strong>작성일:</strong> {new Date(post.created_at).toLocaleString()}
-          </p>
-        </>
-      )}
-
-      {/* 댓글 목록 */}
-      <h2>댓글</h2>
-      {comments.length === 0 ? (
-        <p>댓글이 없습니다.</p>
-      ) : (
-        <ul>{renderComments(comments)}</ul>
-      )}
-
-      <h3>{parentId ? "대댓글 작성" : "댓글 작성"}</h3>
-      <form onSubmit={handleCommentSubmit}>
-        <textarea
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder="댓글을 입력하세요"
-        />
-        <button type="submit">작성</button>
-        {parentId && <button type="button" onClick={() => setParentId(null)}>취소</button>}
-      </form>
+          {/* 구분선 */}
+          <div className="border-t border-[#a1c638]/20 my-6"></div>
+          
+          {/* 댓글 작성 폼 */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              {parentId ? "대댓글 작성" : "새 댓글 작성"}
+            </h3>
+            <form onSubmit={handleCommentSubmit} className="space-y-4">
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder={parentId ? "대댓글을 입력하세요..." : "댓글을 입력하세요..."}
+                className="w-full p-3 border border-[#a1c638]/30 rounded-lg focus:ring-2 focus:ring-[#a1c638] focus:border-[#a1c638] min-h-[100px] resize-none"
+              />
+              <div className="flex justify-end space-x-2">
+                {parentId && (
+                  <button
+                    type="button"
+                    onClick={() => setParentId(null)}
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors"
+                  >
+                    취소
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  className="bg-[#a1c638] hover:bg-[#91b232] text-white px-6 py-2 rounded-md transition-colors"
+                >
+                  댓글 작성
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
