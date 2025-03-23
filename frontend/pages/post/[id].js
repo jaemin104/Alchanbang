@@ -20,7 +20,8 @@ export default function PostDetail() {
     if (!id) return; // ✅ id가 없으면 실행 안 함
     console.log("댓글 요청 실행, ID:", id); // ✅ 디버깅용 로그 추가
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/comments/${id}`)
+  
+    fetch(`http://localhost:5001/api/comments/${id}`)
       .then((res) => res.json())
       .then((data) => {
         console.log("받아온 댓글 데이터:", data);
@@ -41,7 +42,7 @@ export default function PostDetail() {
     console.log("토큰 확인:", token); // ✅ 토큰이 정상적으로 불러와지는지 확인
 
     // ✅ 게시글 상세 정보 불러오기
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/board/${id}`, {
+    fetch(`/api/board/${id}`, {
       headers: { Authorization: token ? `Bearer ${token}` : "" },
     })
       .then((res) => {
@@ -59,7 +60,7 @@ export default function PostDetail() {
     if (token) {
       console.log("✅ 사용자 정보 요청 시작");
 
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/userinfo`, {
+      fetch(`http://localhost:5001/api/auth/userinfo`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => {
@@ -94,7 +95,7 @@ export default function PostDetail() {
       return;
     }
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/comments/${id}`, {
+    fetch(`http://localhost:5001/api/comments/${id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -116,7 +117,7 @@ export default function PostDetail() {
   const handleDeleteComment = async (commentId) => {
     if (!window.confirm("정말 이 댓글을 삭제하시겠습니까?")) return;
   
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}`, {
+    const res = await fetch(`http://localhost:5001/api/comments/${commentId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -198,7 +199,7 @@ const renderComments = (comments) => {
   const handleDelete = async () => {
     if (!window.confirm("정말 이 게시글을 삭제하시겠습니까?")) return;
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/board/${id}`, {
+    const res = await fetch(`http://localhost:5001/api/board/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -222,7 +223,7 @@ const renderComments = (comments) => {
 
     const token = localStorage.getItem("token");
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/board/${id}/like`, {
+    const res = await fetch(`http://localhost:5001/api/board/${id}/like`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
