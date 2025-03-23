@@ -252,7 +252,7 @@ const renderComments = (comments) => {
           <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
             {/* 게시글 헤더 */}
             <div className="border-b border-[#a1c638]/20 pb-4 mb-4">
-              <h1 className="text-4xl font-extrabold text-gray-950 mb-4 tracking-tight leading-tight">{post.title}</h1>
+              <h1 className="text-4xl font-extrabold text-gray-950 mb-3 tracking-tight leading-tight">{post.title}</h1>
               <div className="flex items-center justify-between text-sm text-gray-500">
                 <div className="flex items-center space-x-4">
                   <span>작성자: {post.author}</span>
