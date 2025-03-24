@@ -8,9 +8,20 @@ const profileRoutes = require("./routes/profile");
 const app = express();
 
 app.use(cors({
-  origin: "*", // 모든 요청 허용 (보안이 필요하면 특정 도메인만 허용)
-  credentials: true
+  origin: [
+    "https://alchanbang-59cv1w9fn-jaemin-kims-projects.vercel.app",
+    "https://alchanbang-backend-fhoy5vq6e-jaemin-kims-projects.vercel.app",
+    "http://localhost:3000"
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
+
+// OPTIONS 요청에 대한 추가 처리
+app.options('*', cors());
 
 app.use(express.json());
 
@@ -25,8 +36,7 @@ app.use("/api/board", boardRoutes);
 app.use("/api/comments", commentsRoutes);
 app.use("/api/profile", profileRoutes);
 
-// 포트를 5001로 변경
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 
