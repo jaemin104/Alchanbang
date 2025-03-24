@@ -62,7 +62,7 @@ export default function Register() {
                             <span className="block sm:inline">{error}</span>
                         </div>
                     )}
-                    <form className="mt-8 space-y-6" onSubmit={handleSubmit} method="POST">
+                    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                         <div className="rounded-md shadow-sm -space-y-px">
                             <div>
                                 <label htmlFor="nickname" className="sr-only">
