@@ -9,11 +9,8 @@ const app = express();
 
 app.use(cors({
   origin: [
-    "https://alchanbang-59cv1w9fn-jaemin-kims-projects.vercel.app",
-    "https://alchanbang-backend-fhoy5vq6e-jaemin-kims-projects.vercel.app",
-    "http://localhost:3000",
-    "http://54.173.128.53:3000",
-    "https://54.173.128.53"
+    "https://alchanbang.vercel.app",
+    "http://localhost:3000"
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
