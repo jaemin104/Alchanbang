@@ -11,7 +11,9 @@ app.use(cors({
   origin: [
     "https://alchanbang-59cv1w9fn-jaemin-kims-projects.vercel.app",
     "https://alchanbang-backend-fhoy5vq6e-jaemin-kims-projects.vercel.app",
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "http://54.173.128.53:3000",
+    "https://54.173.128.53"
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -29,7 +31,7 @@ app.use((req, res, next) => {
     console.log(`📌 요청: ${req.method} ${req.url}`);
     console.log("📌 요청 헤더:", req.headers);
     next();
-  });
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/board", boardRoutes);
@@ -38,6 +40,3 @@ app.use("/api/profile", profileRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-
-  
