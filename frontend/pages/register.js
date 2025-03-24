@@ -12,11 +12,7 @@ export default function Register() {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setError("");
-        
+    const handleRegister = async () => {
         try {
             const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`;
             console.log('Attempting to register with:', apiUrl);
@@ -41,7 +37,6 @@ export default function Register() {
             console.error('Registration error:', error);
             setError(error.message || "회원가입 중 오류가 발생했습니다.");
         }
-        return false;
     };
 
     return (
@@ -67,7 +62,7 @@ export default function Register() {
                             <span className="block sm:inline">{error}</span>
                         </div>
                     )}
-                    <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>
+                    <div className="mt-8 space-y-6">
                         <div className="rounded-md shadow-sm -space-y-px">
                             <div>
                                 <label htmlFor="nickname" className="sr-only">
@@ -118,13 +113,14 @@ export default function Register() {
 
                         <div>
                             <button
-                                type="submit"
+                                type="button"
+                                onClick={handleRegister}
                                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#a1c638] hover:bg-[#91b232] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#a1c638]"
                             >
                                 회원가입
                             </button>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </>
