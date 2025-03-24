@@ -14,6 +14,7 @@ export default function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        e.stopPropagation();
         setError("");
         
         try {
@@ -40,6 +41,7 @@ export default function Register() {
             console.error('Registration error:', error);
             setError(error.message || "회원가입 중 오류가 발생했습니다.");
         }
+        return false;
     };
 
     return (
@@ -65,7 +67,7 @@ export default function Register() {
                             <span className="block sm:inline">{error}</span>
                         </div>
                     )}
-                    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                    <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>
                         <div className="rounded-md shadow-sm -space-y-px">
                             <div>
                                 <label htmlFor="nickname" className="sr-only">
