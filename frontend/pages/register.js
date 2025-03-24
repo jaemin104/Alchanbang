@@ -17,8 +17,10 @@ export default function Register() {
         setError("");
         
         try {
-            console.log('Attempting to register with:', process.env.NEXT_PUBLIC_API_URL);
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
+            const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`;
+            console.log('Attempting to register with:', apiUrl);
+            
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -26,8 +28,9 @@ export default function Register() {
                 body: JSON.stringify(form)
             });
             
+            const data = await response.json();
+            
             if (!response.ok) {
-                const data = await response.json();
                 throw new Error(data.message || '회원가입 실패');
             }
             
